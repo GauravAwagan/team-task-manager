@@ -12,13 +12,15 @@ router.get('/', async (req, res) => {
     const role = req.user.role;
 
     let query = {};
+
+    // FIX: ensure correct filtering
     if (role === 'MEMBER') {
       query.assignedTo = userId;
     }
 
-    const tasks = await Task.find(query, 'status dueDate');
+    const tasks = await Task.find(query).select('status dueDate');
 
-    let total = tasks.length;
+    let total = 0;
     let todo = 0;
     let inProgress = 0;
     let completed = 0;
@@ -27,11 +29,17 @@ router.get('/', async (req, res) => {
     const now = new Date();
 
     tasks.forEach(task => {
+      total++;
+
       if (task.status === 'TODO') todo++;
       else if (task.status === 'IN_PROGRESS') inProgress++;
       else if (task.status === 'COMPLETED') completed++;
 
-      if (task.dueDate && new Date(task.dueDate) < now && task.status !== 'COMPLETED') {
+      if (
+        task.dueDate &&
+        new Date(task.dueDate) < now &&
+        task.status !== 'COMPLETED'
+      ) {
         overdue++;
       }
     });
@@ -43,7 +51,9 @@ router.get('/', async (req, res) => {
       completed,
       overdue
     });
+
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: 'Server error' });
   }
 });

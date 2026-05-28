@@ -1,37 +1,49 @@
 const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  passwordHash: {
-    type: String,
-    required: true,
-  },
-  role: {
-    type: String,
-    enum: ['ADMIN', 'MEMBER'],
-    default: 'MEMBER',
-  }
-}, {
-  timestamps: true,
-});
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true
+    },
 
-// Transform the returned object to change _id to id and remove passwordHash
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true
+    },
+
+    passwordHash: {
+      type: String,
+      required: true,
+      select: false
+    },
+
+    role: {
+      type: String,
+      enum: ['ADMIN', 'MEMBER'],
+      default: 'MEMBER'
+    }
+  },
+  {
+    timestamps: true
+  }
+);
+
+// clean output
 userSchema.set('toJSON', {
-  transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString();
-    delete returnedObject._id;
-    delete returnedObject.__v;
-    delete returnedObject.passwordHash;
+  transform: (doc, ret) => {
+    ret.id = ret._id.toString();
+    delete ret._id;
+    delete ret.__v;
+    delete ret.passwordHash;
+    return ret;
   }
 });
 
 const User = mongoose.model('User', userSchema);
+
 module.exports = User;

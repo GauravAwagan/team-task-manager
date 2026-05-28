@@ -9,8 +9,11 @@ const Register = () => {
     password: '',
     role: 'MEMBER'
   });
+
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const API = import.meta.env.VITE_API_URL;
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -19,10 +22,12 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     try {
-      await axios.post('/api/auth/register', formData);
+      await axios.post(`${API}/api/auth/register`, formData);
+
       navigate('/login');
+
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
     }
@@ -31,61 +36,53 @@ const Register = () => {
   return (
     <div className="auth-container">
       <div className="glass-panel auth-card">
-        <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>Create Account</h2>
-        
-        {error && <div style={{ color: 'var(--danger)', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
-        
+        <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          Create Account
+        </h2>
+
+        {error && (
+          <div style={{ color: 'red', marginBottom: '1rem', textAlign: 'center' }}>
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Full Name</label>
-            <input 
-              type="text" 
-              name="name"
-              className="form-control" 
-              value={formData.name} 
-              onChange={handleChange} 
-              required 
-            />
-          </div>
+          <input
+            name="name"
+            placeholder="Full Name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
 
-          <div className="form-group">
-            <label>Email</label>
-            <input 
-              type="email" 
-              name="email"
-              className="form-control" 
-              value={formData.email} 
-              onChange={handleChange} 
-              required 
-            />
-          </div>
-          
-          <div className="form-group">
-            <label>Password</label>
-            <input 
-              type="password" 
-              name="password"
-              className="form-control" 
-              value={formData.password} 
-              onChange={handleChange} 
-              required 
-            />
-          </div>
+          <input
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
 
-          <div className="form-group">
-            <label>Role</label>
-            <select name="role" className="form-control" value={formData.role} onChange={handleChange}>
-              <option value="MEMBER">Team Member</option>
-              <option value="ADMIN">Administrator</option>
-            </select>
-          </div>
-          
-          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }}>
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+
+          <select name="role" value={formData.role} onChange={handleChange}>
+            <option value="MEMBER">Team Member</option>
+            <option value="ADMIN">Administrator</option>
+          </select>
+
+          <button type="submit">
             Sign Up
           </button>
         </form>
-        
-        <div style={{ textAlign: 'center', marginTop: '1.5rem', color: 'var(--text-muted)' }}>
+
+        <div>
           Already have an account? <Link to="/login">Sign in</Link>
         </div>
       </div>
